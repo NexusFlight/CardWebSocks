@@ -1,5 +1,5 @@
 ﻿using CardsAgaisntNet;
-using CardWebHooks.Cards;
+using CardWebSocks.Cards;
 using Microsoft.AspNetCore.Http.Connections.Features;
 using Microsoft.AspNetCore.SignalR;
 using System;
