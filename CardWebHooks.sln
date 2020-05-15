@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardWebHooks", "CardWebHooks\CardWebHooks.csproj", "{A8155799-46A7-4BDC-BFC8-48680F6154B2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A8155799-46A7-4BDC-BFC8-48680F6154B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8155799-46A7-4BDC-BFC8-48680F6154B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8155799-46A7-4BDC-BFC8-48680F6154B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8155799-46A7-4BDC-BFC8-48680F6154B2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {41CA1B31-E0F5-4206-A46B-425EBA8C03BA}
+	EndGlobalSection
+EndGlobal

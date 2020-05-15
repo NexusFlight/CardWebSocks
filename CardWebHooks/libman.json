@@ -1,0 +1,23 @@
+{
+  "version": "1.0",
+  "defaultProvider": "unpkg",
+  "libraries": [
+    {
+      "library": "@microsoft/signalr@latest",
+      "destination": "wwwroot/js/signalr/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "node-uuid@1.4.8",
+      "destination": "wwwroot/js/node-uuid/"
+    },
+    {
+      "library": "dom-parser@0.1.6",
+      "destination": "wwwroot/js/dom-parser/"
+    },
+    {
+      "library": "browserify@16.5.1",
+      "destination": "wwwroot/lib/browserify/"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+﻿@page
+
+<div class="container">
+    <div><ul id="players"></ul></div>
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class="col-2">Name</div>
+        <div class="col-3"><input type="text" id="nameInput" /></div>
+    </div>
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class="col-6">
+            <input type="button" id="joinButton" value="Join Game" />
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+
+        <hr />
+        <div id="topLine">
+            <div id="blackCard"></div>
+            <div id="selectedCards"></div>
+        </div>
+        <div id="cards">
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-6">
+
+        <ul id="messagesList"></ul>
+    </div>
+</div>
+
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/game.js"></script>
+<script src="~/js/node-uuid/uuid.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
