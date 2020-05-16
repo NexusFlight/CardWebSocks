@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CardWebSocks.Cards;
+using CardWebSocks.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,7 +27,7 @@ namespace CardWebSocks
         {
             services.AddRazorPages();
             services.AddSignalR();
-            services.AddSingleton<Game>();
+            services.AddSingleton<GameManager>();
             services.AddTransient<DBContext>();
         }
 
@@ -55,6 +56,7 @@ namespace CardWebSocks
             {
                 endpoints.MapRazorPages();
                 endpoints.MapHub<GameHub>("/gamehub");
+                endpoints.MapHub<LobbyHub>("/lobbyhub");
             });
         }
     }

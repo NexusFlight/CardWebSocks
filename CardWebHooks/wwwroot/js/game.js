@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-
+var gameID;
 var connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 //Disable send button until connection is established
 document.getElementById("joinButton").disabled = true;
@@ -24,6 +24,7 @@ connection.on("ReceivePlayerDetails", function (names) {
 
 connection.start().then(function () {
     document.getElementById("joinButton").disabled = false;
+    connection.invoke("GetGameID", localStorage.getItem("gameid"));
 }).catch(function (err) {
     return console.error(err.toString());
 });
@@ -35,7 +36,8 @@ document.getElementById("joinButton").addEventListener("click", function (event)
         Uuusid = uuid.v4()
         localStorage.setItem('id', Uuusid);
     }
-    connection.invoke("handleUUID", Uuusid, user).catch(function (err) {
+    gameID = localStorage.getItem("gameid");
+    connection.invoke("HandleUUID", Uuusid, user, gameID).catch(function (err) {
         return console.error(err.toString());
     });
     event.preventDefault();
