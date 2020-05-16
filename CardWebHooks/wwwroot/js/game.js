@@ -5,6 +5,15 @@ var connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 //Disable send button until connection is established
 document.getElementById("joinButton").disabled = true;
 
+
+
+connection.start().then(function () {
+    document.getElementById("joinButton").disabled = false;
+    connection.invoke("GetGameID", localStorage.getItem("gameid"));
+}).catch(function (err) {
+    return console.error(err.toString());
+});
+
 connection.on("ReceiveMessage", function (user, message) {
     var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     var encodedMsg = user + " says " + msg;
@@ -17,18 +26,10 @@ connection.on("ReceivePlayerDetails", function (names) {
     document.getElementById("players").innerHTML = "";
     for (var i = 0; i < names.length; i++) {
         console.log(names[i]);
-        document.getElementById("players").innerHTML += "<li>"+names[i]+"</li>";
+        document.getElementById("players").innerHTML += "<li>" + names[i] + "</li>";
     }
-    
-});
 
-connection.start().then(function () {
-    document.getElementById("joinButton").disabled = false;
-    connection.invoke("GetGameID", localStorage.getItem("gameid"));
-}).catch(function (err) {
-    return console.error(err.toString());
 });
-
 document.getElementById("joinButton").addEventListener("click", function (event) {
     var Uuusid = localStorage.getItem('id');
     var user = document.getElementById("nameInput").value;

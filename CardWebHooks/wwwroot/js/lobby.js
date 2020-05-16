@@ -14,7 +14,7 @@ connection.start().then(function () {
 });
 
 document.getElementById("joinGameButton").addEventListener("click", function (event) {
-    var name = document.getElementById("nameInput").textContent;
+    var name = document.getElementById("nameInput").value;
     connection.invoke("AddGame", name).catch(function (err) {
         return console.error(err.toString());
     });
@@ -40,6 +40,5 @@ connection.on("ReceiveAllGames", function (games) {
 });
 
 connection.on("SetGameID", function (ID) {
-    gameID = ID;
-    localStorage.setItem("gameid", ID);
+    JoinGame(ID)
 });

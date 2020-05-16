@@ -28,6 +28,7 @@ namespace CardWebSocks.Hubs
         public void AddGame(string gameName)
         {
             var gameID = gameManager.AddGame(gameName);
+            ShowAllGames();
             Clients.Caller.SendAsync("SetGameID", gameID);
         }
 
