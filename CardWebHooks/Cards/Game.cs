@@ -65,6 +65,7 @@ namespace CardWebSocks.Cards
 
         public void NewCardCzar()
         {
+            
             CardCzar = players.IndexOf(CardCzar) + 1 == PlayerCount
             ? players[0]
     :       players[players.IndexOf(CardCzar) + 1];
@@ -112,14 +113,21 @@ namespace CardWebSocks.Cards
             return playedArray;
         }
 
-        public void ConnectPlayer(Player player)
+        public bool ConnectPlayer(Player player)
         {
-            players.Add(player);
-
+            if (!players.Contains(FindPlayerByConnectionId(player.ConnectionID)))
+            {
+                players.Add(player);
+            }
+            else
+            {
+                return false;
+            }
             if (IsPlayerDisconnected(player))
                 disconnectedPlayers.Remove(player);
             if (HasGameStarted)
                 FillPlayerHand(player);
+            return true;
         }
 
         public bool IsPlayerDisconnected(Player player)

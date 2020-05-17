@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-var gameID;
+var gameID = new URLSearchParams(window.location.search).get('gid');
 var connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 //Disable send button until connection is established
 document.getElementById("startButton").hidden = true;
@@ -12,7 +12,7 @@ document.getElementById("openSideNav").hidden = true;
 
 connection.start().then(function () {
     document.getElementById("setName").disabled = false;
-    connection.invoke("GetGameFromID", localStorage.getItem("gameid"));
+    connection.invoke("GetGameFromID", gameID);
 }).catch(function (err) {
     return console.error(err.toString());
 });
@@ -30,6 +30,9 @@ connection.on("RecieveDeckConfig", function (decks) {
 
 });
 
+connection.on("ReturnToLobby", function (user, message) {
+    document.location.href = "/Index";
+});
 
 connection.on("ReceiveMessage", function (user, message) {
     var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -41,6 +44,7 @@ connection.on("ReceiveMessage", function (user, message) {
 
 connection.on("ReceivePlayerDetails", function (names) {
     document.getElementById("players").innerHTML = "";
+    console.log(names);
     for (var i = 0; i < names.length; i++) {
         document.getElementById("players").innerHTML += "<li>" + names[i] + "</li>";
     }
@@ -65,7 +69,7 @@ document.getElementById("startButton").addEventListener("click", function (event
             }
         }
     }
-    connection.invoke("StartGame", decks).catch(function (err) {
+    connection.invoke("StartGame", decks, gameID).catch(function (err) {
         return console.error(err.toString());
     });
     event.preventDefault();
@@ -87,7 +91,7 @@ connection.on("CardCzar", function () {
 
 document.getElementById("setName").addEventListener("click", function (event) {
     var user = document.getElementById("nameInput").value;
-    connection.invoke("SetName", user).catch(function (err) {
+    connection.invoke("SetName", user, gameID).catch(function (err) {
         return console.error(err.toString());
     });
     event.preventDefault();
@@ -115,7 +119,6 @@ connection.on("UUIDHandler", function () {
         Uuusid = uuid.v4()
         localStorage.setItem('id', Uuusid);
     }
-    gameID = localStorage.getItem("gameid");
     connection.invoke("HandleUUID", Uuusid, gameID).catch(function (err) {
         return console.error(err.toString());
     });
@@ -123,13 +126,13 @@ connection.on("UUIDHandler", function () {
 });
 
 function clickCard(card) {
-    connection.invoke("ClickCard", localStorage.getItem('id'), card.innerHTML).catch(function (err) {
+    connection.invoke("ClickCard", localStorage.getItem('id'), card.innerHTML, gameID).catch(function (err) {
         return console.error(err.toString());
     });
 }
 
 function selectCard(card) {
-    connection.invoke("SelectCard", localStorage.getItem('id'), card.innerHTML).catch(function (err) {
+    connection.invoke("SelectCard", localStorage.getItem('id'), card.innerHTML, gameID).catch(function (err) {
         return console.error(err.toString());
     });
 }
@@ -146,7 +149,7 @@ connection.on("ShowWhiteCards", function (whiteCards) {
 
 connection.on("RefreshHand", function () {
 
-    connection.invoke("RefreshHand", localStorage.getItem('id')).catch(function (err) {
+    connection.invoke("RefreshHand", localStorage.getItem('id'), gameID).catch(function (err) {
         return console.error(err.toString());
     });
 

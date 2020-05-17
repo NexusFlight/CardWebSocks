@@ -22,10 +22,8 @@ document.getElementById("joinGameButton").addEventListener("click", function (ev
 });
 
 function JoinGame(id) {
-    gameID = id;
-    localStorage.setItem("gameid", id);
     console.log(id);
-    document.location.href = "/Game/";
+    document.location.href = "/Game?gid=" + id;
 }
 
 

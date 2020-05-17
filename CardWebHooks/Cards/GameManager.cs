@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CardsAgaisntNet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,6 +33,33 @@ namespace CardWebSocks.Cards
                 throw new Exception("No Game Found");
             }
             return game;
+        }
+
+        public Game FindGameByPlayerConId(string connectionId)
+        {
+            foreach (var game in games)
+            {
+                var player = game.FindPlayerByConnectionId(connectionId);
+                if (player != null)
+                {
+                    return game;
+                }
+            }
+            return null;
+        }
+
+        internal void RemoveGame(Game game)
+        {
+            games.Remove(game);
+        }
+
+        internal void RemoveGameIfEmpty(Guid id)
+        {
+            var game = games.Where(game => game.Id == id).FirstOrDefault();
+            if (game.PlayerCount == 0)
+            {
+                RemoveGame(game);
+            }
         }
     }
 }
