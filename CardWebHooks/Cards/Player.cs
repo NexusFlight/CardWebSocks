@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace CardsAgaisntNet
 {
-    
+
     public class Player
     {
         public List<string> Hand { get; private set; }
@@ -12,7 +10,7 @@ namespace CardsAgaisntNet
         public string ID { get; private set; }
         public List<string> PlayedCards { get; set; }
         public string ConnectionID { get; set; }
-        public string Name { get;  set; }
+        public string Name { get; set; }
         public bool IsGameStarter { get; set; }
         public Player(string ID, string connectionID)
         {
@@ -34,7 +32,7 @@ namespace CardsAgaisntNet
             Hand.RemoveAt(cardIndex);
         }
 
-        
+
 
 
     }

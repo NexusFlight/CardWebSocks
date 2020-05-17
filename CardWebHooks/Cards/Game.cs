@@ -65,10 +65,10 @@ namespace CardWebSocks.Cards
 
         public void NewCardCzar()
         {
-            
+
             CardCzar = players.IndexOf(CardCzar) + 1 == PlayerCount
             ? players[0]
-    :       players[players.IndexOf(CardCzar) + 1];
+    : players[players.IndexOf(CardCzar) + 1];
 
         }
 
@@ -147,9 +147,9 @@ namespace CardWebSocks.Cards
             }
         }
 
-        internal Tuple<string,bool>[] GetAvailableDecks()
+        internal Tuple<string, bool>[] GetAvailableDecks()
         {
-            return Decks.AvailableDecks.Select(deck => new Tuple<string,bool>(deck.Id,deck.Base)).ToArray();
+            return Decks.AvailableDecks.Select(deck => new Tuple<string, bool>(deck.Id, deck.Base)).ToArray();
         }
 
         public Player FindPlayerById(string id)

@@ -1,8 +1,6 @@
-﻿using CardsAgaisntNet;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CardWebSocks.Cards
 {
@@ -30,7 +28,7 @@ namespace CardWebSocks.Cards
         public Game FindGameByID(Guid id)
         {
             var game = games.FirstOrDefault(x => x.Id == id);
-            if(game == null)
+            if (game == null)
             {
                 throw new Exception("No Game Found");
             }

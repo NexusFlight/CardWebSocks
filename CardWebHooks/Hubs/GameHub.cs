@@ -19,7 +19,7 @@ namespace SignalRChat.Hubs
         {
             await Clients.Caller.SendAsync("UUIDHandler");
             await base.OnConnectedAsync();
-            
+
         }
 
         public void GetGameFromID(string guid)
@@ -140,13 +140,13 @@ namespace SignalRChat.Hubs
         {
 
             game = GameManager.FindGameByPlayerConnectionId(Context.ConnectionId);
-            if(game == null)
+            if (game == null)
             {
                 await base.OnDisconnectedAsync(exception);
                 return;
             }
             var player = game.FindPlayerByConnectionId(Context.ConnectionId);
-            
+
             game.DisconnectPlayer(player);
             await Clients.Group(game.Id.ToString()).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
             Console.WriteLine(game.Id.ToString());
@@ -160,7 +160,7 @@ namespace SignalRChat.Hubs
             }
             if (game.HasGameStarted)
             {
-                
+
                 if (game.PlayerCount > 0)
                 {
                     if (player == game.CardCzar)
@@ -176,20 +176,20 @@ namespace SignalRChat.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        
 
-        
 
-        
 
-        
 
-        
 
-        
-        
 
-        
+
+
+
+
+
+
+
+
 
 
     }

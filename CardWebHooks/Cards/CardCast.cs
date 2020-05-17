@@ -18,7 +18,7 @@
 //        [JsonProperty("responses")]
 //        public List<Call> Responses { get; set; }
 
-        
+
 //    }
 
 //    public partial class Call

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace CardsAgaisntNet
 {
@@ -38,7 +37,7 @@ namespace CardsAgaisntNet
 
         public void OutputToJson()
         {
-            File.WriteAllText("jsons/"+Id+".txt",JsonConvert.SerializeObject(this));
+            File.WriteAllText("jsons/" + Id + ".txt", JsonConvert.SerializeObject(this));
         }
         public void AddDeck(Deck deck)
         {
