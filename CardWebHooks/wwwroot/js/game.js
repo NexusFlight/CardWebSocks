@@ -132,7 +132,7 @@ function clickCard(card) {
 }
 
 function selectCard(card) {
-    connection.invoke("SelectCard", localStorage.getItem('id'), card.innerHTML, gameID).catch(function (err) {
+    connection.invoke("SelectWinningCard", localStorage.getItem('id'), card.innerHTML, gameID).catch(function (err) {
         return console.error(err.toString());
     });
 }

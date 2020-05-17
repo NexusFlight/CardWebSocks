@@ -12,9 +12,11 @@ namespace CardWebSocks.Cards
         public IEnumerable<Game> Games => games;
         public GameManager()
         {
-            games = new List<Game>();
-            games.Add(new Game("bob"));
-            games.Add(new Game("Paul"));
+            games = new List<Game>
+            {
+                new Game("bob"),
+                new Game("Paul")
+            };
 
         }
 
@@ -35,7 +37,7 @@ namespace CardWebSocks.Cards
             return game;
         }
 
-        public Game FindGameByPlayerConId(string connectionId)
+        public Game FindGameByPlayerConnectionId(string connectionId)
         {
             foreach (var game in games)
             {

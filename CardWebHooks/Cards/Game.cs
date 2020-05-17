@@ -179,7 +179,7 @@ namespace CardWebSocks.Cards
 
         public string[] AllPlayersDetails()
         {
-            return Players
+            return players
                 .Select(player => $"{player.Name} points: {player.points} {(IsCardCzar(player) ? "Card Czar" : "")}")
                 .ToArray();
         }
