@@ -15,7 +15,7 @@ namespace CardsAgaisntNet
         [JsonProperty("whiteCards")]
         public List<string> WhiteCards { get; set; }
 
-        [JsonProperty("Base")]
+        [JsonProperty("Base", NullValueHandling = NullValueHandling.Ignore)]
         public bool Base { get; set; }
 
         [JsonProperty("order")]

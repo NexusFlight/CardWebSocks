@@ -3,8 +3,10 @@
 var gameID;
 var connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 //Disable send button until connection is established
-document.getElementById("startButton").disabled = true;
+document.getElementById("startButton").hidden = true;
 document.getElementById("setName").disabled = true;
+document.getElementById("openSideNav").hidden = true;
+
 
 
 
@@ -15,12 +17,15 @@ connection.start().then(function () {
     return console.error(err.toString());
 });
 
-connection.on("RecieveDeckConfig", function (deckNames) {
+connection.on("RecieveDeckConfig", function (decks) {
     document.getElementById("deckOptions").innerHTML = "";
-    for (var i = 0; i < deckNames.length; i++) {
-        console.log(deckNames[i]);
-        document.getElementById("deckOptions").innerHTML += "<input type=\"checkbox\" id=\"deckOption\" name=\"" + i + " \" value =\"" + deckNames[i] + "\"/ > ";
-        document.getElementById("deckOptions").innerHTML += "<label for=\"" + i + " \">" + deckNames[i] + "</label>";
+    for (var i = 0; i < decks.length; i++) {
+        if (decks[i].item2 == true) {
+            document.getElementById("deckOptions").innerHTML += "<input type=\"checkbox\" id=\"deckOption\" name=\"" + i + " \" value =\"" + decks[i].item1 + "\"/ checked> ";
+        } else {
+            document.getElementById("deckOptions").innerHTML += "<input type=\"checkbox\" id=\"deckOption\" name=\"" + i + " \" value =\"" + decks[i].item1 + "\"/ > ";
+        }
+        document.getElementById("deckOptions").innerHTML += "<label for=\"" + i + " \">" + decks[i].item1 + "</label>";
     }
 
 });
@@ -37,14 +42,16 @@ connection.on("ReceiveMessage", function (user, message) {
 connection.on("ReceivePlayerDetails", function (names) {
     document.getElementById("players").innerHTML = "";
     for (var i = 0; i < names.length; i++) {
-        console.log(names[i]);
         document.getElementById("players").innerHTML += "<li>" + names[i] + "</li>";
     }
 
 });
 
 connection.on("GameStarter", function () {
-    document.getElementById("startButton").disabled = false;
+    console.log("YOU ARE THE OVERLORD");
+    document.getElementById("startButton").hidden = false;
+    document.getElementById("openSideNav").hidden = false;
+
 });
 
 document.getElementById("startButton").addEventListener("click", function (event) {
@@ -72,7 +79,6 @@ connection.on("CardCzar", function () {
     for (var i = 0; i < divs.length; i++) {
 
         if (divs[i].id == "card") {
-            console.log(divs[i].id);
             divs[i].style.backgroundColor = "gray";
         }
     }

@@ -41,6 +41,14 @@ namespace SignalRChat.Hubs
             var player = game.FindPlayerByConnectionId(Context.ConnectionId);
 
             game.DisconnectPlayer(player);
+            if (player.IsGameStarter && game.PlayerCount > 0)
+            {
+                var newPlayer = game.GetNextPlayer();
+                newPlayer.IsGameStarter = true;
+
+                Clients.Client(newPlayer.ConnectionID).SendAsync("GameStarter");
+                Clients.Client(newPlayer.ConnectionID).SendAsync("RecieveDeckConfig", game.GetAvailableDecks());
+            }
             if (game.HasGameStarted)
             {
                 if (player == game.CardCzar)
@@ -49,6 +57,7 @@ namespace SignalRChat.Hubs
                 }
                 if (game.PlayerCount > 0)
                 {
+                    
                     RevealWhiteCards();
                 }
             }

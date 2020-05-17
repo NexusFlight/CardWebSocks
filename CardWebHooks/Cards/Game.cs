@@ -58,6 +58,11 @@ namespace CardWebSocks.Cards
             PlayedCards = 0;
         }
 
+        internal Player GetNextPlayer()
+        {
+            return players[0];
+        }
+
         public void NewCardCzar()
         {
             CardCzar = players.IndexOf(CardCzar) + 1 == PlayerCount
@@ -130,12 +135,13 @@ namespace CardWebSocks.Cards
                 disconnectedPlayers.Add(player);
                 PlayedCards -= player.PlayedCards.Count;
                 player.PlayedCards.Clear();
+                player.IsGameStarter = false;
             }
         }
 
-        internal string[] GetAvailableDecks()
+        internal Tuple<string,bool>[] GetAvailableDecks()
         {
-            return Decks.AvailableDecks.Select(deck => deck.ID).ToArray();
+            return Decks.AvailableDecks.Select(deck => new Tuple<string,bool>(deck.Id,deck.Base)).ToArray();
         }
 
         public Player FindPlayerById(string id)
