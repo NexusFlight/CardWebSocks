@@ -9,7 +9,7 @@ namespace CardWebSocks.Cards
     {
         private readonly IList<Player> disconnectedPlayers;
         private readonly IList<Player> players;
-        
+
         public string Name { get; }
         public Guid Id { get; }
         public IEnumerable<Player> Players => players;
@@ -18,6 +18,7 @@ namespace CardWebSocks.Cards
         public Player CardCzar { get; private set; }
         public int PlayedCards { get; private set; }
         public int PlayerCount => players.Count;
+        public bool HasGameStarted { get; set; } = false;
 
         public Game(string name)
         {
@@ -26,46 +27,62 @@ namespace CardWebSocks.Cards
             players = new List<Player>();
             disconnectedPlayers = new List<Player>();
             PlayedCards = 0;
+        }
 
-            CurrentBlackCard = Decks.Deck.ShowBlackCard();
+        public void StartGame(string[] decks)
+        {
+            foreach (var deck in decks)
+            {
+                Decks.AddDeckFromName(deck);
+            }
+            NewBlackCard();
+            HasGameStarted = true;
+        }
+
+        public void FillPlayerHand(Player player)
+        {
+            while (player.Hand.Count < 7)
+                player.GiveCard(Decks.Deck.SelectWhiteCard());
         }
 
         public void NewBlackCard()
         {
-            for (var i = 0; i < CurrentBlackCard.Pick; i++)
+            for (var j = 0; j < PlayerCount; j++)
             {
-                for (var j = 0; j < PlayerCount; j++)
-                {
-                    players[j].playedCards.Clear();
-                    if(players[j].hand.Count < 7)
-                        players[j].GiveCard(Decks.Deck.SelectWhiteCard());
-                }
+                players[j].PlayedCards.Clear();
+                while (players[j].Hand.Count < 7)
+                    players[j].GiveCard(Decks.Deck.SelectWhiteCard());
             }
             CurrentBlackCard = Decks.Deck.ShowBlackCard();
-            CardCzar = players.IndexOf(CardCzar) + 1 == PlayerCount 
-                ? players[0] 
-                : players[players.IndexOf(CardCzar) + 1];
-            
+
             PlayedCards = 0;
         }
 
-        public Tuple<string,Array> PlayerPlayCard(string id, string card)
+        public void NewCardCzar()
+        {
+            CardCzar = players.IndexOf(CardCzar) + 1 == PlayerCount
+            ? players[0]
+    :       players[players.IndexOf(CardCzar) + 1];
+
+        }
+
+        public Tuple<string, Array> PlayerPlayCard(string id, string card)
         {
             var player = FindPlayerById(id);
-            var playedCount = player.playedCards.Count;
+            var playedCount = player.PlayedCards.Count;
             if (playedCount != CurrentBlackCard.Pick && player != CardCzar)
             {
                 player.PlayCard(card);
                 PlayedCards++;
-                return new Tuple<string, Array>(card,player.hand.ToArray());
+                return new Tuple<string, Array>(card, player.Hand.ToArray());
             }
             return null;
         }
 
         public string[] PlayedCardsToArray()
         {
-            var playedArray = new string[(PlayerCount-1)*CurrentBlackCard.Pick];
-            
+            var playedArray = new string[(PlayerCount - 1) * CurrentBlackCard.Pick];
+
             var played = 0;
             var selections = new List<int>();
             for (var i = 0; i < PlayerCount; i++)
@@ -73,14 +90,14 @@ namespace CardWebSocks.Cards
                 selections.Add(i);
             }
             var rand = new Random();
-            selections = selections.OrderBy(x => rand.Next(0,100)).ToList();
+            selections = selections.OrderBy(x => rand.Next(0, 100)).ToList();
 
             for (var i = 0; i < PlayerCount; i++)
             {
                 var player = players[selections[i]];
                 if (IsCardCzar(player)) continue;
-                
-                foreach (var playedCard in player.playedCards)
+
+                foreach (var playedCard in player.PlayedCards)
                 {
                     playedArray[played] = playedCard;
                     played++;
@@ -93,9 +110,11 @@ namespace CardWebSocks.Cards
         public void ConnectPlayer(Player player)
         {
             players.Add(player);
-            
+
             if (IsPlayerDisconnected(player))
                 disconnectedPlayers.Remove(player);
+            if (HasGameStarted)
+                FillPlayerHand(player);
         }
 
         public bool IsPlayerDisconnected(Player player)
@@ -106,16 +125,24 @@ namespace CardWebSocks.Cards
         public void DisconnectPlayer(Player player)
         {
             players.Remove(player);
-            disconnectedPlayers.Add(player);
-            PlayedCards -= player.playedCards.Count;
-            player.playedCards.Clear();
+            if (HasGameStarted)
+            {
+                disconnectedPlayers.Add(player);
+                PlayedCards -= player.PlayedCards.Count;
+                player.PlayedCards.Clear();
+            }
+        }
+
+        internal string[] GetAvailableDecks()
+        {
+            return Decks.AvailableDecks.Select(deck => deck.ID).ToArray();
         }
 
         public Player FindPlayerById(string id)
         {
             return players.SingleOrDefault(x => x.ID == id) ?? disconnectedPlayers.SingleOrDefault(x => x.ID == id);
         }
-        
+
         public Player FindPlayerByConnectionId(string connectionId)
         {
             return players.SingleOrDefault(x => x.ConnectionID == connectionId);
@@ -133,13 +160,13 @@ namespace CardWebSocks.Cards
 
         internal void SelectCard(string card)
         {
-            Players.Single(x => x.playedCards.Contains(card)).points++;
+            Players.Single(x => x.PlayedCards.Contains(card)).points++;
         }
 
         public string[] AllPlayersDetails()
         {
             return Players
-                .Select(player => $"${player.Name} points: {player.points} {(IsCardCzar(player) ? "Card Czar" : "")}")
+                .Select(player => $"{player.Name} points: {player.points} {(IsCardCzar(player) ? "Card Czar" : "")}")
                 .ToArray();
         }
     }

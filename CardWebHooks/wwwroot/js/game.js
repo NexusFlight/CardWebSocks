@@ -3,16 +3,28 @@
 var gameID;
 var connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
 //Disable send button until connection is established
-document.getElementById("joinButton").disabled = true;
+document.getElementById("startButton").disabled = true;
+document.getElementById("setName").disabled = true;
 
 
 
 connection.start().then(function () {
-    document.getElementById("joinButton").disabled = false;
-    connection.invoke("GetGameID", localStorage.getItem("gameid"));
+    document.getElementById("setName").disabled = false;
+    connection.invoke("GetGameFromID", localStorage.getItem("gameid"));
 }).catch(function (err) {
     return console.error(err.toString());
 });
+
+connection.on("RecieveDeckConfig", function (deckNames) {
+    document.getElementById("deckOptions").innerHTML = "";
+    for (var i = 0; i < deckNames.length; i++) {
+        console.log(deckNames[i]);
+        document.getElementById("deckOptions").innerHTML += "<input type=\"checkbox\" id=\"deckOption\" name=\"" + i + " \" value =\"" + deckNames[i] + "\"/ > ";
+        document.getElementById("deckOptions").innerHTML += "<label for=\"" + i + " \">" + deckNames[i] + "</label>";
+    }
+
+});
+
 
 connection.on("ReceiveMessage", function (user, message) {
     var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -30,35 +42,57 @@ connection.on("ReceivePlayerDetails", function (names) {
     }
 
 });
-document.getElementById("joinButton").addEventListener("click", function (event) {
-    var Uuusid = localStorage.getItem('id');
-    var user = document.getElementById("nameInput").value;
-    if (Uuusid == null) {
-        Uuusid = uuid.v4()
-        localStorage.setItem('id', Uuusid);
+
+connection.on("GameStarter", function () {
+    document.getElementById("startButton").disabled = false;
+});
+
+document.getElementById("startButton").addEventListener("click", function (event) {
+    var decks = [];
+    var options = document.getElementsByTagName("input");
+
+    for (var i = 0; i < options.length; i++) {
+        if (options[i].id == "deckOption") {
+            if (options[i].checked) {
+                decks.push(options[i].value);
+            }
+        }
     }
-    gameID = localStorage.getItem("gameid");
-    connection.invoke("HandleUUID", Uuusid, user, gameID).catch(function (err) {
+    connection.invoke("StartGame", decks).catch(function (err) {
         return console.error(err.toString());
     });
     event.preventDefault();
 });
 
 
+connection.on("CardCzar", function () {
+
+    var divs = document.getElementsByTagName("div");
+
+    for (var i = 0; i < divs.length; i++) {
+
+        if (divs[i].id == "card") {
+            console.log(divs[i].id);
+            divs[i].style.backgroundColor = "gray";
+        }
+    }
+
+});
+
+document.getElementById("setName").addEventListener("click", function (event) {
+    var user = document.getElementById("nameInput").value;
+    connection.invoke("SetName", user).catch(function (err) {
+        return console.error(err.toString());
+    });
+    event.preventDefault();
+});
 
 connection.on("ReceiveHand", function (hand) {
 
-    //var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    //var encodedMsg = user + " says " + msg;
-    //var li = document.createElement("li");
-    //li.textContent = encodedMsg;
     let dom = new DOMParser();
     document.getElementById("cards").innerHTML = "";
     for (var i = 0; i < hand.length; i++) {
         document.getElementById("cards").innerHTML += "<div id=\"card\" onclick=\"clickCard(this)\">" + dom.parseFromString(hand[i], "text/html").body.innerHTML + "</div>";
-        //document.getElementById("cards").innerHTML += "<br>";
-
-
     }
 
 });
@@ -71,10 +105,15 @@ connection.on("RecieveSelWCard", function (card) {
 });
 connection.on("UUIDHandler", function () {
     var Uuusid = localStorage.getItem('id');
-    connection.invoke("handleUUID", Uuusid).catch(function (err) {
+    if (Uuusid == null) {
+        Uuusid = uuid.v4()
+        localStorage.setItem('id', Uuusid);
+    }
+    gameID = localStorage.getItem("gameid");
+    connection.invoke("HandleUUID", Uuusid, gameID).catch(function (err) {
         return console.error(err.toString());
     });
-
+    event.preventDefault();
 });
 
 function clickCard(card) {
@@ -114,16 +153,5 @@ connection.on("ClearSelectedCards", function () {
 }); 
 
 
-connection.on("CardCzar", function () {
 
-    var divs = document.getElementsByTagName("div");
 
-    for (var i = 0; i < divs.length; i++) {
-        
-        if (divs[i].id == "card") {
-            console.log(divs[i].id);
-            divs[i].style.backgroundColor = "gray";
-        }
-    }
-
-});

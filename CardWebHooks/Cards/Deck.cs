@@ -16,32 +16,40 @@ namespace CardsAgaisntNet
         public List<string> WhiteCards { get; set; }
 
         [JsonProperty("Base")]
-        public Base Base { get; set; }
+        public bool Base { get; set; }
 
         [JsonProperty("order")]
-        public List<string> Order { get; set; }
+        public object Order { get; set; }
 
-        public string ID { get; set; }
+        [JsonProperty("ID")]
+        public string Id { get; set; }
         public Deck()
         {
             BlackCards = new List<BlackCard>();
             WhiteCards = new List<string>();
         }
-        public Deck(string id, List<BlackCard> blackCards, List<string> whiteCards)
-        {
-            ID = id;
-            BlackCards = blackCards;
-            WhiteCards = whiteCards;
-        }
+
+        //public Deck(string id, List<BlackCard> blackCards, List<string> whiteCards) //DEFUNCT CARDCAST CODE
+        //{
+        //    Id = id;
+        //    BlackCards = blackCards;
+        //    WhiteCards = whiteCards;
+        //}
 
         public void OutputToJson()
         {
-            File.WriteAllText("jsons/"+ID+".txt",JsonConvert.SerializeObject(this));
+            File.WriteAllText("jsons/"+Id+".txt",JsonConvert.SerializeObject(this));
         }
         public void AddDeck(Deck deck)
         {
             BlackCards.AddRange(deck.BlackCards);
             WhiteCards.AddRange(deck.WhiteCards);
+        }
+
+        public void RemoveDeck(Deck deck)
+        {
+            BlackCards.RemoveAll(x => deck.BlackCards.Find(y => x.Text == y.Text).Equals(x));
+            WhiteCards.RemoveAll(x => deck.WhiteCards.Find(y => x == y).Equals(x));
         }
 
         public BlackCard ShowBlackCard()
@@ -63,17 +71,6 @@ namespace CardsAgaisntNet
         }
     }
 
-    public partial class Base
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("black")]
-        public List<long> Black { get; set; }
-
-        [JsonProperty("white")]
-        public List<long> White { get; set; }
-    }
 
     public partial class BlackCard
     {

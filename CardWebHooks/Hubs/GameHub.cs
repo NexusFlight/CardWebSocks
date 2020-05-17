@@ -16,10 +16,11 @@ namespace SignalRChat.Hubs
         }
         public override Task OnConnectedAsync()
         {
+            Clients.Caller.SendAsync("UUIDHandler");
             return base.OnConnectedAsync();
         }
 
-        public void GetGameID(string guid)
+        public void GetGameFromID(string guid)
         {
             game = GameManager.FindGameByID(new Guid(guid));
         }
@@ -31,17 +32,25 @@ namespace SignalRChat.Hubs
             if (Context.Items.ContainsKey(Context.ConnectionId))
             {
                 gameID = (string)Context.Items[Context.ConnectionId];
-                GetGameID(gameID);
+                GetGameFromID(gameID);
+            }
+            else
+            {
+                return base.OnDisconnectedAsync(exception);
             }
             var player = game.FindPlayerByConnectionId(Context.ConnectionId);
-            if (player == game.CardCzar)
-            {
-                GetNewBlackCard();
-            }
+
             game.DisconnectPlayer(player);
-            if (game.PlayerCount > 0)
+            if (game.HasGameStarted)
             {
-                RevealWhiteCards();
+                if (player == game.CardCzar)
+                {
+                    GetNewBlackCard();
+                }
+                if (game.PlayerCount > 0)
+                {
+                    RevealWhiteCards();
+                }
             }
             Clients.Group(gameID).SendAsync("ReceivePlayers", game.AllPlayersDetails());
 
@@ -59,17 +68,26 @@ namespace SignalRChat.Hubs
             if (Context.Items.ContainsKey(Context.ConnectionId))
             {
                 gameID = (string)Context.Items[Context.ConnectionId];
-                GetGameID(gameID);
+                GetGameFromID(gameID);
             }
             game.NewBlackCard();
+            game.NewCardCzar();
             Clients.Group(gameID).SendAsync("RecieveBlackCard", game.CurrentBlackCard.Text, "Pick " + game.CurrentBlackCard.Pick);
             Clients.Group(gameID).SendAsync("RefreshHand");
             Clients.Group(gameID).SendAsync("ClearSelectedCards");
         }
 
-        public void HandleUUID(string uuid, string name, string gameID)
+        public void SetName(string name)
         {
-            GetGameID(gameID);
+            var gameID = GetGameFromConnection();
+            var player = game.FindPlayerByConnectionId(Context.ConnectionId);
+            player.Name = name;
+            Clients.Group(gameID).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
+        }
+
+        public void HandleUUID(string uuid, string gameID)
+        {
+            GetGameFromID(gameID);
             Groups.AddToGroupAsync(Context.ConnectionId,gameID);
             if (Context.Items.ContainsKey(Context.ConnectionId))
             {
@@ -77,28 +95,56 @@ namespace SignalRChat.Hubs
              
             }
             Context.Items.Add(Context.ConnectionId, gameID);
-            var player = game.FindPlayerById(uuid) ?? new Player(game.Decks.Deck, uuid, name, Context.ConnectionId);
+            var player = game.FindPlayerById(uuid) ?? new Player(uuid, Context.ConnectionId);
             game.ConnectPlayer(player);
             
-            if (name != player.Name)
-            {
-                player.Name = name;
-            }
             if (Context.ConnectionId != player.ConnectionID)
             {
                 player.ConnectionID = Context.ConnectionId;
             }
             
-            Clients.Caller.SendAsync("RecieveBlackCard", game.CurrentBlackCard.Text, "Pick " + game.CurrentBlackCard.Pick);
-            Clients.Caller.SendAsync("ReceiveHand", player.hand.ToArray());
+            
 
             if (game.PlayerCount == 1)
             {
                 game.AssignAsCardCzar(player);
                 Clients.Caller.SendAsync("CardCzar");
+                player.IsGameStarter = true;
+                Clients.Caller.SendAsync("GameStarter");
+               Clients.Caller.SendAsync("RecieveDeckConfig", game.GetAvailableDecks());
+            }
+            if (game.HasGameStarted)
+            {
+                Clients.Group(gameID).SendAsync("RecieveBlackCard", game.CurrentBlackCard.Text, "Pick " + game.CurrentBlackCard.Pick);
+                Clients.Caller.SendAsync("ReceiveHand", player.Hand.ToArray());
+                Clients.Group(gameID).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
             }
 
-            Clients.Group(gameID).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
+            
+        }
+
+        public string GetGameFromConnection()
+        {
+            var gameID = "";
+            if (Context.Items.ContainsKey(Context.ConnectionId))
+            {
+                gameID = (string)Context.Items[Context.ConnectionId];
+                GetGameFromID(gameID);
+            }
+            return gameID;
+        }
+
+        public void StartGame(string[] decks)
+        {
+            var gameID = GetGameFromConnection();
+            var player = game.FindPlayerByConnectionId(Context.ConnectionId);
+            if (!game.HasGameStarted && player.IsGameStarter)
+            {
+                game.StartGame(decks);
+                Clients.Group(gameID).SendAsync("RecieveBlackCard", game.CurrentBlackCard.Text, "Pick " + game.CurrentBlackCard.Pick);
+                Clients.Caller.SendAsync("ReceiveHand", player.Hand.ToArray());
+                Clients.Group(gameID).SendAsync("RefreshHand");
+            }
         }
 
         private async void RevealWhiteCards()
@@ -107,7 +153,7 @@ namespace SignalRChat.Hubs
             if (Context.Items.ContainsKey(Context.ConnectionId))
             {
                 gameID = (string)Context.Items[Context.ConnectionId];
-                GetGameID(gameID);
+                GetGameFromID(gameID);
             }
             if (game.PlayedCards >= (game.CurrentBlackCard.Pick * (game.PlayerCount - 1)))
             {
@@ -119,7 +165,7 @@ namespace SignalRChat.Hubs
         {
             if (Context.Items.ContainsKey(Context.ConnectionId))
             {
-                GetGameID((string)Context.Items[Context.ConnectionId]);
+                GetGameFromID((string)Context.Items[Context.ConnectionId]);
             }
             var cardHand = game.PlayerPlayCard(id, card);
             if (cardHand != null)
@@ -134,10 +180,10 @@ namespace SignalRChat.Hubs
         {
             if (Context.Items.ContainsKey(Context.ConnectionId))
             {
-                GetGameID((string)Context.Items[Context.ConnectionId]);
+                GetGameFromID((string)Context.Items[Context.ConnectionId]);
             }
             var player = game.FindPlayerById(id);
-            Clients.Caller.SendAsync("ReceiveHand", player.hand.ToArray());
+            Clients.Caller.SendAsync("ReceiveHand", player.Hand.ToArray());
             if (player == game.CardCzar)
             {
                 Clients.Caller.SendAsync("CardCzar");
@@ -150,7 +196,7 @@ namespace SignalRChat.Hubs
             if (Context.Items.ContainsKey(Context.ConnectionId))
             {
                 gameID = (string)Context.Items[Context.ConnectionId];
-                GetGameID(gameID);
+                GetGameFromID(gameID);
             }
             var player = game.FindPlayerById(id);
             if (player == game.CardCzar)

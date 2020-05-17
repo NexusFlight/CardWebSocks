@@ -34,7 +34,7 @@ connection.on("ReceiveAllGames", function (games) {
 
     console.log(games);
     for (var i = 0; i < games.length; i++) {
-        document.getElementById("games").innerHTML += "<div onClick=\"JoinGame('"+games[i].id+"')\">" + games[i].name +"</div >";
+        document.getElementById("games").innerHTML += "<div id=\"game\" onClick=\"JoinGame('" + games[i].id + "')\">" + games[i].name + "<br> Players: " + games[i].playerCount+"</div >";
     }
     
 });
