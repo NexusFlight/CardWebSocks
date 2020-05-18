@@ -1,4 +1,4 @@
-﻿using CardsAgaisntNet;
+﻿
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +10,7 @@ namespace CardWebSocks.Cards
         public List<Deck> AvailableDecks { get; }
         public Decks()
         {
-            Deck = new CardsAgaisntNet.Deck();
+            Deck = new Deck();
             DirectoryInfo dInfo = new DirectoryInfo("Cards/jsons/");
             AvailableDecks = new List<Deck>();
             foreach (var item in dInfo.GetFiles())

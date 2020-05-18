@@ -1,10 +1,9 @@
-﻿using CardsAgaisntNet;
-using CardWebSocks.Cards;
+﻿using CardWebSocks.Cards;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Threading.Tasks;
 
-namespace SignalRChat.Hubs
+namespace CardWebSocks.Hubs
 {
     public class GameHub : Hub
     {

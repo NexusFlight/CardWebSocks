@@ -7,7 +7,7 @@
 //using Newtonsoft.Json;
 //using Newtonsoft.Json.Converters;
 
-//namespace CardsAgaisntNet
+//namespace CardWebSocks.Cards
 //{
 
 //    public partial class CardCast

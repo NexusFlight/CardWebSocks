@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CardsAgaisntNet
+namespace CardWebSocks.Cards
 {
 
     public class Player

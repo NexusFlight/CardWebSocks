@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace CardsAgaisntNet
+namespace CardWebSocks.Cards
 {
     public partial class Deck
     {
