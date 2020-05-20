@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,9 +22,17 @@ namespace CardWebSocks.Cards
         public object Order { get; set; }
 
         [JsonProperty("ID")]
-        public string Id { get; set; }
+        public string Name { get; set; }
+        [BsonId]
+        public string DBID { get; set; }
         public Deck()
         {
+            BlackCards = new List<BlackCard>();
+            WhiteCards = new List<string>();
+        }
+        public Deck(string DBID)
+        {
+            this.DBID = DBID;
             BlackCards = new List<BlackCard>();
             WhiteCards = new List<string>();
         }
@@ -37,7 +46,7 @@ namespace CardWebSocks.Cards
 
         public void OutputToJson()
         {
-            File.WriteAllText("jsons/" + Id + ".txt", JsonConvert.SerializeObject(this));
+            File.WriteAllText("jsons/" + Name + ".txt", JsonConvert.SerializeObject(this));
         }
         public void AddDeck(Deck deck)
         {
@@ -67,6 +76,26 @@ namespace CardWebSocks.Cards
             string card = WhiteCards[selected];
             WhiteCards.RemoveAt(selected);
             return card;
+        }
+
+        public void AddWhiteCard(string text)
+        {
+            WhiteCards.Add(text);
+        }
+
+        public void AddBlackCard(BlackCard blackCard)
+        {
+            BlackCards.Add(blackCard);
+        }
+
+        public void RemoveBlackCard(string text)
+        {
+            BlackCards.Remove(BlackCards.Find(x => x.Text.Equals(text)));
+        }
+
+        public void RemoveWhiteCard(string text)
+        {
+            WhiteCards.Remove(WhiteCards.Find(x => x.Equals(text)));
         }
     }
 

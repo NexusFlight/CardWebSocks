@@ -51,6 +51,8 @@ namespace CardWebSocks
                 endpoints.MapRazorPages();
                 endpoints.MapHub<GameHub>("/gamehub");
                 endpoints.MapHub<LobbyHub>("/lobbyhub");
+                endpoints.MapHub<CardCreatorHub>("/ccreatorhub");
+
             });
         }
     }

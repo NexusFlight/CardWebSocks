@@ -3,11 +3,11 @@ using Microsoft.Extensions.Logging;
 
 namespace CardWebSocks.Pages
 {
-    public class PrivacyModel : PageModel
+    public class CCreatorModel : PageModel
     {
-        private readonly ILogger<PrivacyModel> _logger;
+        private readonly ILogger<CCreatorModel> _logger;
 
-        public PrivacyModel(ILogger<PrivacyModel> logger)
+        public CCreatorModel(ILogger<CCreatorModel> logger)
         {
             _logger = logger;
         }

@@ -22,7 +22,7 @@ namespace CardWebSocks.Cards
 
         public void AddDeckFromName(string name)
         {
-            Deck.AddDeck(AvailableDecks.Find(x => x.Id == name));
+            Deck.AddDeck(AvailableDecks.Find(x => x.Name == name));
         }
     }
 }

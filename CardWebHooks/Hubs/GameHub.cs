@@ -7,11 +7,13 @@ namespace CardWebSocks.Hubs
 {
     public class GameHub : Hub
     {
+        DBContext dBContext;
         readonly GameManager GameManager;
         Game game;
-        public GameHub(GameManager gameManager)
+        public GameHub(GameManager gameManager, DBContext dBContext)
         {
             GameManager = gameManager;
+            this.dBContext = dBContext;
         }
 
         public override async Task OnConnectedAsync()
@@ -71,6 +73,12 @@ namespace CardWebSocks.Hubs
             await Clients.Group(gameID).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
         }
 
+        public void ImportFromDB(string gameID,string dbID)
+        {
+            var deck = dBContext.GetDeckByID(dbID);
+            GetGameFromID(gameID);
+            game.AddDeck(deck.Result);
+        }
         public async Task StartGame(string[] decks, string gameId)
         {
             GetGameFromID(gameId);
@@ -128,11 +136,18 @@ namespace CardWebSocks.Hubs
 
         private async Task GetNewBlackCard(string gameID)
         {
-            game.NewBlackCard();
-            game.NewCardCzar();
-            await Clients.Group(gameID).SendAsync("RecieveBlackCard", game.CurrentBlackCard.Text, "Pick " + game.CurrentBlackCard.Pick);
-            await Clients.Group(gameID).SendAsync("RefreshHand");
-            await Clients.Group(gameID).SendAsync("ClearSelectedCards");
+            var isGameOver = game.NewBlackCard();
+            if (!isGameOver)
+            {
+                game.NewCardCzar();
+                await Clients.Group(gameID).SendAsync("RecieveBlackCard", game.CurrentBlackCard.Text, "Pick " + game.CurrentBlackCard.Pick);
+                await Clients.Group(gameID).SendAsync("RefreshHand");
+                await Clients.Group(gameID).SendAsync("ClearSelectedCards");
+            }
+            else
+            {
+                await Clients.Group(gameID).SendAsync("GameOver",game.GetWinningPlayer());
+            }
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -174,21 +189,6 @@ namespace CardWebSocks.Hubs
             GameManager.RemoveGameIfEmpty(game.Id);
             await base.OnDisconnectedAsync(exception);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     }

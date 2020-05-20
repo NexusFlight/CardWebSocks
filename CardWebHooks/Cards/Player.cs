@@ -6,7 +6,7 @@ namespace CardWebSocks.Cards
     public class Player
     {
         public List<string> Hand { get; private set; }
-        public int points = 0;
+        public int Points { get; set; }
         public string ID { get; private set; }
         public List<string> PlayedCards { get; set; }
         public string ConnectionID { get; set; }
@@ -18,6 +18,12 @@ namespace CardWebSocks.Cards
             this.ID = ID;
             Hand = new List<string>();
             PlayedCards = new List<string>();
+        }
+
+        public Player(string name, int points)
+        {
+            Name = name;
+            Points = points;
         }
 
         public void GiveCard(string card)

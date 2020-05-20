@@ -108,6 +108,7 @@ connection.on("ReceiveHand", function (hand) {
 });
 
 connection.on("RecieveBlackCard", function (BCardt, BCardp) {
+    document.getElementById("gameSpace").innerHTML = "<hr />< div id = \"topLine\" ><div id=\"blackCard\"></div><div id=\"selectedCards\"></div></div><div id=\"cards\"></div>";
     document.getElementById("blackCard").innerHTML = "<div id=\"BCard\">" + BCardt + "<br>" + BCardp + "</div>";
 });
 connection.on("RecieveSelWCard", function (card) {
@@ -161,6 +162,19 @@ connection.on("ClearSelectedCards", function () {
 
 }); 
 
+connection.on("GameOver", function (player) {
+    console.log(player);
+    document.getElementById("gameSpace").innerHTML = "GAME OVER! "+player.name+" Won with "+player.points+" points!";
+
+});
+
+document.getElementById("AddDeck").addEventListener("click", function (event) {
+    var deckID = document.getElementById("DeckInput").value;
+    connection.invoke("ImportFromDB", gameID, deckID).catch(function (err) {
+        return console.error(err.toString());
+    });
+    event.preventDefault();
+});
 
 
 

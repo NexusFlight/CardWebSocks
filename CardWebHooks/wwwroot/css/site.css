@@ -112,6 +112,8 @@ body {
     font-family: 'Anton', sans-serif;
     background-color: black;
     color: white;
+    display: inline-block;
+    overflow: hidden;
 }
 
 

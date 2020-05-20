@@ -1,0 +1,47 @@
+﻿@page
+
+    <div class="container">
+        <div class="row">&nbsp;</div>
+        <div class="row">
+            <div class="col-2">Deck name</div>
+            <div class="col-3"><input type="text" id="nameInput" /></div>
+            <input type="button" id="CreateDeck" value="Create Deck" />
+        </div>
+        <div class="row">
+            <div class="col-2">Black card text</div>
+            <div class="col-3"><input type="text" id="blackCardText" /></div>
+        </div>
+        <div class="row">
+            <div class="col-2">Black card number of picks</div>
+            <div class="col-3"><input type="text" id="blackCardPick" /></div>
+            <input type="button" id="CreateBlackCard" value="Create Black Card" />
+        </div>
+        <div class="row">
+            <div class="col-2">White Card text</div>
+            <div class="col-3"><input type="text" id="WhiteCardText" /></div>
+            <input type="button" id="CreateWhiteCard" value="Create White Card" />
+        </div>
+        <input type="button" id="DownloadCards" value="Save Cards" />
+
+    </div>
+
+<div class="row">
+    <div class="col-12">
+
+        <hr />
+        <div id="topLine">
+            <div id="blackCards"></div>
+        </div>
+        <div id="whiteCards">
+
+        </div>
+
+    </div>
+</div>
+
+
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/CCreator.js"></script>
+<script src="~/js/node-uuid/uuid.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">

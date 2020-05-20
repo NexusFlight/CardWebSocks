@@ -28,6 +28,10 @@ namespace CardWebSocks.Cards
             PlayedCards = 0;
         }
 
+        public void AddDeck(Deck deck)
+        {
+            Decks.Deck.AddDeck(deck);
+        }
         public void StartGame(string[] decks)
         {
             foreach (var deck in decks)
@@ -40,26 +44,44 @@ namespace CardWebSocks.Cards
 
         public void FillPlayerHand(Player player)
         {
-            while (player.Hand.Count < 7)
+            while (player.Hand.Count < 7 && Decks.Deck.WhiteCards.Count > 0)
                 player.GiveCard(Decks.Deck.SelectWhiteCard());
         }
 
-        public void NewBlackCard()
+        public bool NewBlackCard()
         {
             for (var j = 0; j < PlayerCount; j++)
             {
                 players[j].PlayedCards.Clear();
-                while (players[j].Hand.Count < 7)
-                    players[j].GiveCard(Decks.Deck.SelectWhiteCard());
+                FillPlayerHand(players[j]);
             }
-            CurrentBlackCard = Decks.Deck.ShowBlackCard();
-
+            if (Decks.Deck.BlackCards.Count > 0)
+            {
+                CurrentBlackCard = Decks.Deck.ShowBlackCard();
+            }
+            else
+            {
+                HasGameStarted = false;
+                return true;
+            }
             PlayedCards = 0;
+            return false;
         }
 
         internal Player GetNextPlayer()
         {
             return players[0];
+        }
+
+        public Player GetWinningPlayer()
+        {
+            var winner = players.OrderByDescending(x => x.Points).First();
+            winner = new Player(winner.Name, winner.Points);
+            foreach (var player in players)
+            {
+                player.Points = 0;
+            }
+            return winner;
         }
 
         public void NewCardCzar()
@@ -148,7 +170,7 @@ namespace CardWebSocks.Cards
 
         internal Tuple<string, bool>[] GetAvailableDecks()
         {
-            return Decks.AvailableDecks.Select(deck => new Tuple<string, bool>(deck.Id, deck.Base)).ToArray();
+            return Decks.AvailableDecks.Select(deck => new Tuple<string, bool>(deck.Name, deck.Base)).ToArray();
         }
 
         public Player FindPlayerById(string id)
@@ -173,13 +195,13 @@ namespace CardWebSocks.Cards
 
         internal void SelectCard(string card)
         {
-            Players.Single(x => x.PlayedCards.Contains(card)).points++;
+            Players.Single(x => x.PlayedCards.Contains(card)).Points++;
         }
 
         public string[] AllPlayersDetails()
         {
             return players
-                .Select(player => $"{player.Name} points: {player.points} {(IsCardCzar(player) ? "Card Czar" : "")}")
+                .Select(player => $"{player.Name} points: {player.Points} {(IsCardCzar(player) ? "Card Czar" : "")}")
                 .ToArray();
         }
     }
