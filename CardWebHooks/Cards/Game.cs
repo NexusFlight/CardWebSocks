@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 
 namespace CardWebSocks.Cards
 {
@@ -18,6 +19,7 @@ namespace CardWebSocks.Cards
         public int PlayedCards { get; private set; }
         public int PlayerCount => players.Count;
         public bool HasGameStarted { get; set; } = false;
+        public bool WhiteCardsAreShown { get; set; } = false;
 
         public Game(string name)
         {
@@ -64,6 +66,7 @@ namespace CardWebSocks.Cards
                 HasGameStarted = false;
                 return true;
             }
+            WhiteCardsAreShown = false;
             PlayedCards = 0;
             return false;
         }
@@ -93,21 +96,22 @@ namespace CardWebSocks.Cards
 
         }
 
-        public Tuple<string, Array> PlayerPlayCard(string id, string card)
+        public Tuple<string, Array> PlayerPlayCard(string id, int card)
         {
             var player = FindPlayerById(id);
             var playedCount = player.PlayedCards.Count;
             if (playedCount != CurrentBlackCard.Pick && player != CardCzar)
             {
-                player.PlayCard(card);
+                var playedCard = player.PlayCard(card);
                 PlayedCards++;
-                return new Tuple<string, Array>(card, player.Hand.ToArray());
+                return new Tuple<string, Array>(playedCard, player.Hand.ToArray());
             }
             return null;
         }
 
         public string[] PlayedCardsToArray()
         {
+            WhiteCardsAreShown = true;
             var playedArray = new string[(PlayerCount - 1) * CurrentBlackCard.Pick];
 
             var played = 0;
@@ -126,7 +130,7 @@ namespace CardWebSocks.Cards
 
                 foreach (var playedCard in player.PlayedCards)
                 {
-                    playedArray[played] = playedCard;
+                    playedArray[played] = WebUtility.HtmlDecode(playedCard);
                     played++;
                 }
             }
@@ -139,6 +143,7 @@ namespace CardWebSocks.Cards
             if (!players.Contains(FindPlayerByConnectionId(player.ConnectionID)))
             {
                 players.Add(player);
+                player.Name = $"Player{players.Count}";
             }
             else
             {
@@ -193,15 +198,23 @@ namespace CardWebSocks.Cards
             CardCzar = player;
         }
 
-        internal void SelectCard(string card)
+        internal Player SelectCard(string card)
         {
-            Players.Single(x => x.PlayedCards.Contains(card)).Points++;
+            var rightsMark = "&#174;";
+            card = WebUtility.HtmlEncode(card);
+            if (card.Contains(rightsMark))
+            {
+                card = card.Replace(rightsMark, "&amp;reg;");
+            }
+            var winner = Players.Single(x => x.PlayedCards.Contains(card));
+            winner.Points++;
+            return winner;
         }
 
         public string[] AllPlayersDetails()
         {
             return players
-                .Select(player => $"{player.Name} points: {player.Points} {(IsCardCzar(player) ? "Card Czar" : "")}")
+                .Select(player => $"{player.Name} points: {player.Points} {(IsCardCzar(player) ? "Card Czar" : (HasGameStarted ? "Played: " + player.PlayedCards.Count + "/" + CurrentBlackCard.Pick : ""))}")
                 .ToArray();
         }
     }

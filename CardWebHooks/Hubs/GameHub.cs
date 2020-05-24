@@ -1,6 +1,9 @@
 ﻿using CardWebSocks.Cards;
 using Microsoft.AspNetCore.SignalR;
 using System;
+using System.IO;
+using System.Net;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
 namespace CardWebSocks.Hubs
@@ -59,9 +62,9 @@ namespace CardWebSocks.Hubs
             {
                 await Clients.Group(gameID).SendAsync("RecieveBlackCard", game.CurrentBlackCard.Text, "Pick " + game.CurrentBlackCard.Pick);
                 await Clients.Caller.SendAsync("ReceiveHand", player.Hand.ToArray());
-                await Clients.Group(gameID).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
             }
 
+            await Clients.Group(gameID).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
 
         }
         public async Task SetName(string name, string gameID)
@@ -73,9 +76,9 @@ namespace CardWebSocks.Hubs
             await Clients.Group(gameID).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
         }
 
-        public void ImportFromDB(string gameID,string dbID)
+        public void ImportFromDB(string gameID,string playID)
         {
-            var deck = dBContext.GetDeckByID(dbID);
+            var deck = dBContext.GetDeckByPlayID(playID);
             GetGameFromID(gameID);
             game.AddDeck(deck.Result);
         }
@@ -103,10 +106,11 @@ namespace CardWebSocks.Hubs
             }
         }
 
-        public async Task ClickCard(string id, string card, string gameID)
+        public async Task ClickCard(string id, int card, string gameID)
         {
             GetGameFromID(gameID);
             var cardHand = game.PlayerPlayCard(id, card);
+            await Clients.Group(gameID).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
             if (cardHand != null)
             {
                 await Clients.Caller.SendAsync("RecieveSelWCard", cardHand.Item1);
@@ -116,7 +120,7 @@ namespace CardWebSocks.Hubs
         }
         private async void RevealWhiteCards(string gameID)
         {
-            if (game.PlayedCards >= (game.CurrentBlackCard.Pick * (game.PlayerCount - 1)))
+            if (game.PlayedCards >= (game.CurrentBlackCard.Pick * (game.PlayerCount - 1)) && !game.WhiteCardsAreShown)
             {
                 await Clients.Group(gameID).SendAsync("ShowWhiteCards", game.PlayedCardsToArray());
             }
@@ -128,9 +132,10 @@ namespace CardWebSocks.Hubs
             var player = game.FindPlayerById(id);
             if (player == game.CardCzar)
             {
-                game.SelectCard(card);
+                var winner = game.SelectCard(card);
                 await GetNewBlackCard(gameID);
                 await Clients.Group(gameID).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
+                await Clients.Group(gameID).SendAsync("RecieveWinner", winner.Name);
             }
         }
 
@@ -175,7 +180,7 @@ namespace CardWebSocks.Hubs
             if (game.HasGameStarted)
             {
 
-                if (game.PlayerCount > 0)
+                if (game.PlayerCount > 0 && player.PlayedCards != null)
                 {
                     if (player == game.CardCzar)
                     {

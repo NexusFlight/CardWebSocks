@@ -2,6 +2,7 @@
 
 var gameID = new URLSearchParams(window.location.search).get('gid');
 var connection = new signalR.HubConnectionBuilder().withUrl("/gameHub").build();
+let dom = new DOMParser();
 //Disable send button until connection is established
 document.getElementById("startButton").hidden = true;
 document.getElementById("setName").disabled = true;
@@ -46,10 +47,15 @@ connection.on("ReceivePlayerDetails", function (names) {
     document.getElementById("players").innerHTML = "";
     console.log(names);
     for (var i = 0; i < names.length; i++) {
-        document.getElementById("players").innerHTML += "<li>" + names[i] + "</li>";
+        document.getElementById("players").innerHTML += "<li id=\"" + names[i].substr(0, names[i].indexOf(' '))+"\">" + names[i] + "</li>";
     }
 
 });
+connection.on("RecieveWinner", function (winner) {
+    document.getElementById(winner).className = "winner";
+    
+});
+
 
 connection.on("GameStarter", function () {
     console.log("YOU ARE THE OVERLORD");
@@ -99,20 +105,20 @@ document.getElementById("setName").addEventListener("click", function (event) {
 
 connection.on("ReceiveHand", function (hand) {
 
-    let dom = new DOMParser();
+    
     document.getElementById("cards").innerHTML = "";
     for (var i = 0; i < hand.length; i++) {
-        document.getElementById("cards").innerHTML += "<div id=\"card\" onclick=\"clickCard(this)\">" + dom.parseFromString(hand[i], "text/html").body.innerHTML + "</div>";
+        document.getElementById("cards").innerHTML += "<div id=\"card\" onclick=\"clickCard(" + i + ")\">" + dom.parseFromString(hand[i], "text/html").body.innerHTML + "</div>";
     }
 
 });
 
 connection.on("RecieveBlackCard", function (BCardt, BCardp) {
-    document.getElementById("gameSpace").innerHTML = "<hr />< div id = \"topLine\" ><div id=\"blackCard\"></div><div id=\"selectedCards\"></div></div><div id=\"cards\"></div>";
+    document.getElementById("gameSpace").innerHTML = "<hr /><div id=\"topLine\"><div id=\"blackCard\"></div><div id=\"selectedCards\"></div></div><div id=\"cards\"></div>";
     document.getElementById("blackCard").innerHTML = "<div id=\"BCard\">" + BCardt + "<br>" + BCardp + "</div>";
 });
 connection.on("RecieveSelWCard", function (card) {
-    document.getElementById("selectedCards").innerHTML += "<div id=\"selectedCard\">" + card + "</div>";
+    document.getElementById("selectedCards").innerHTML += "<div id=\"selectedCard\">" + dom.parseFromString(card, "text/html").body.innerHTML + "</div>";
 });
 connection.on("UUIDHandler", function () {
     var Uuusid = localStorage.getItem('id');
@@ -127,22 +133,22 @@ connection.on("UUIDHandler", function () {
 });
 
 function clickCard(card) {
-    connection.invoke("ClickCard", localStorage.getItem('id'), card.innerHTML, gameID).catch(function (err) {
+    connection.invoke("ClickCard", localStorage.getItem('id'), card, gameID).catch(function (err) {
         return console.error(err.toString());
     });
 }
 
 function selectCard(card) {
+
     connection.invoke("SelectWinningCard", localStorage.getItem('id'), card.innerHTML, gameID).catch(function (err) {
         return console.error(err.toString());
     });
 }
 
 connection.on("ShowWhiteCards", function (whiteCards) {
-    let dom = new DOMParser();
     document.getElementById("selectedCards").innerHTML = "";
     for (var i = 0; i < whiteCards.length; i++) {
-        document.getElementById("selectedCards").innerHTML += "<div id=\"selectedCard\" onclick=\"selectCard(this)\">" + whiteCards[i] + "</div>";
+        document.getElementById("selectedCards").innerHTML += "<div id=\"selectedCard\" onclick=\"selectCard(this)\">" + dom.parseFromString(whiteCards[i], "text/html").body.innerHTML + "</div>";
     }
 
 });

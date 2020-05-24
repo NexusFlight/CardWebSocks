@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 
 namespace CardWebSocks.Cards
 {
@@ -31,11 +32,12 @@ namespace CardWebSocks.Cards
             Hand.Add(card);
         }
 
-        public void PlayCard(string card)
+        public string PlayCard(int cardIndex)
         {
-            int cardIndex = Hand.IndexOf(card);
-            PlayedCards.Add(Hand[cardIndex]);
+            var card = Hand[cardIndex];
+            PlayedCards.Add(WebUtility.HtmlEncode(Hand[cardIndex]));
             Hand.RemoveAt(cardIndex);
+            return card;
         }
 
 

@@ -25,6 +25,7 @@ namespace CardWebSocks.Cards
         public string Name { get; set; }
         [BsonId]
         public string DBID { get; set; }
+        public string PlayID { get; set; }
         public Deck()
         {
             BlackCards = new List<BlackCard>();

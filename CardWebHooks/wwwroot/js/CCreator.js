@@ -82,7 +82,9 @@ connection.on("RecieveWhiteCards", function (whiteCards) {
 connection.on("DeckName", function (Name) {
     document.getElementById("nameInput").value = Name;
 });
-
+connection.on("DeckPlayID", function (playID) {
+    document.getElementById("PlayID").innerHTML = playID;
+});
 function DeleteConfirm(e,index) {
     if (!e.innerHTML.includes("Delete?")) {
         e.innerHTML += "<br/><a onClick=\"Delete(this,\'"+index+"\')\">Delete?</a><br/><a onClick=\"RefreshCards()\" id=\"No\">NO!</a>";
