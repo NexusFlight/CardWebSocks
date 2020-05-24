@@ -24,17 +24,16 @@ namespace CardWebSocks.Hubs
         {
             if (dbID == null)
             {
-                var dbid = Guid.NewGuid().ToString();
-                dBContext.CreateDeck(new Deck(dbid));
-                await Clients.Caller.SendAsync("SetDbId", dbid);
+                dbID = Guid.NewGuid().ToString();
+                await Clients.Caller.SendAsync("SetDbId", dbID);
             }
             else
             {
-
+                dBContext.CreateDeck(new Deck(dbID));
                 await Clients.Caller.SendAsync("DeckPlayID", GetDeck(dbID).PlayID);
                 await GetAllCards(dbID);
             }
-
+            Context.Items.Add(Context.ConnectionId, dbID);
         }
 
         public Deck GetDeck(string dbID)
@@ -100,6 +99,32 @@ namespace CardWebSocks.Hubs
             }
             UpdateDB(deck);
             await GetAllCards(dbID);
+        }
+
+        private void RemoveDeck(string dbID)
+        {
+            dBContext.RemoveDeckByID(dbID);
+        }
+
+        public override Task OnDisconnectedAsync(Exception exception)
+        {
+            var dbID = (string)Context.Items[Context.ConnectionId];
+            Deck deck = null;
+            try
+            {
+                deck = GetDeck(dbID);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Either Deck not in DB or initial Reload of card creator page");
+            }
+            
+            if(deck != null && deck.Name == null && deck.BlackCards.Count == 0 && deck.WhiteCards.Count == 0)
+            {
+                RemoveDeck(dbID);
+            }
+            Context.Items.Remove(Context.ConnectionId);
+            return base.OnDisconnectedAsync(exception);
         }
     }
 }

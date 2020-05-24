@@ -65,5 +65,11 @@ namespace CardWebSocks
         {
             return await Database.GetCollection<Deck>("Decks").FindAsync(x => x.PlayID == playiD).Result.FirstAsync();
         }
+
+        internal async void RemoveDeckByID(string iD)
+        {
+            await Database.GetCollection<Deck>("Decks").DeleteOneAsync(x => x.DBID == iD);
+        }
+
     }
 }
