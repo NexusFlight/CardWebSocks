@@ -60,7 +60,7 @@ namespace CardWebSocks.Hubs
             }
             if (game.HasGameStarted)
             {
-                await Clients.Group(gameID).SendAsync("RecieveBlackCard", game.CurrentBlackCard.Text, "Pick " + game.CurrentBlackCard.Pick);
+                await Clients.Caller.SendAsync("RecieveBlackCard", game.CurrentBlackCard.Text, "Pick " + game.CurrentBlackCard.Pick);
                 await Clients.Caller.SendAsync("ReceiveHand", player.Hand.ToArray());
             }
 
@@ -123,6 +123,7 @@ namespace CardWebSocks.Hubs
             if (game.PlayedCards >= (game.CurrentBlackCard.Pick * (game.PlayerCount - 1)) && !game.WhiteCardsAreShown)
             {
                 await Clients.Group(gameID).SendAsync("ShowWhiteCards", game.PlayedCardsToArray());
+                game.WhiteCardsAreShown = false;
             }
         }
 
@@ -171,6 +172,7 @@ namespace CardWebSocks.Hubs
             Console.WriteLine(game.Id.ToString());
             if (player.IsGameStarter && game.PlayerCount > 0)
             {
+                player.IsGameStarter = false;
                 var newPlayer = game.GetNextPlayer();
                 newPlayer.IsGameStarter = true;
 
