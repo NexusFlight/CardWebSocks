@@ -46,17 +46,17 @@ namespace CardWebSocks.Cards
 
         public void FillPlayerHand(Player player)
         {
-            while (player.Hand.Count < 7 && Decks.Deck.WhiteCards.Count > 0)
+            while (player.Hand.Count < 10 && Decks.Deck.WhiteCards.Count > 0)
                 player.GiveCard(Decks.Deck.SelectWhiteCard());
         }
-
+        public void FillPlayerHand(Player player,int additional)
+        {
+            while (player.Hand.Count < 10+additional && Decks.Deck.WhiteCards.Count > 0)
+                player.GiveCard(Decks.Deck.SelectWhiteCard());
+        }
         public bool NewBlackCard()
         {
-            for (var j = 0; j < PlayerCount; j++)
-            {
-                players[j].PlayedCards.Clear();
-                FillPlayerHand(players[j]);
-            }
+
             if (Decks.Deck.BlackCards.Count > 0)
             {
                 CurrentBlackCard = Decks.Deck.ShowBlackCard();
@@ -65,6 +65,18 @@ namespace CardWebSocks.Cards
             {
                 HasGameStarted = false;
                 return true;
+            }
+            for (var j = 0; j < PlayerCount; j++)
+            {
+                if(CurrentBlackCard.Pick >= 3)
+                {
+                    FillPlayerHand(players[j], CurrentBlackCard.Pick - 1);
+                }
+                else
+                {
+                    FillPlayerHand(players[j]);
+                }
+                players[j].PlayedCards.Clear();
             }
             WhiteCardsAreShown = false;
             PlayedCards = 0;
@@ -201,10 +213,15 @@ namespace CardWebSocks.Cards
         internal Player SelectCard(string card)
         {
             var rightsMark = "&#174;";
+            var tradeMark = "™";
             card = WebUtility.HtmlEncode(card);
             if (card.Contains(rightsMark))
             {
                 card = card.Replace(rightsMark, "&amp;reg;");
+            }
+            if (card.Contains(tradeMark))
+            {
+                card = card.Replace(tradeMark, "&amp;trade;");
             }
             var winner = Players.Single(x => x.PlayedCards.Contains(card));
             winner.Points++;

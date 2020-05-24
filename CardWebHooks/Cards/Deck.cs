@@ -107,7 +107,7 @@ namespace CardWebSocks.Cards
         public string Text { get; set; }
 
         [JsonProperty("pick")]
-        public long Pick { get; set; }
+        public int Pick { get; set; }
 
         public BlackCard(string text, int pick)
         {
