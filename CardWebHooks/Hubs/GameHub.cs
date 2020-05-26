@@ -76,7 +76,7 @@ namespace CardWebSocks.Hubs
             await Clients.Group(gameID).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
         }
 
-        public void ImportFromDB(string gameID,string playID)
+        public void ImportFromDB(string gameID, string playID)
         {
             var deck = dBContext.GetDeckByPlayID(playID);
             GetGameFromID(gameID);
@@ -118,6 +118,7 @@ namespace CardWebSocks.Hubs
             }
             RevealWhiteCards(gameID);
         }
+
         private async void RevealWhiteCards(string gameID)
         {
             if (game.PlayedCards >= (game.CurrentBlackCard.Pick * (game.PlayerCount - 1)) && !game.WhiteCardsAreShown)
@@ -152,7 +153,7 @@ namespace CardWebSocks.Hubs
             }
             else
             {
-                await Clients.Group(gameID).SendAsync("GameOver",game.GetWinningPlayer());
+                await Clients.Group(gameID).SendAsync("GameOver", game.GetWinningPlayer());
             }
         }
 
