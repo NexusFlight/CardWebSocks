@@ -123,7 +123,7 @@ namespace CardWebSocks.Hubs
             if (game.PlayedCards >= (game.CurrentBlackCard.Pick * (game.PlayerCount - 1)) && !game.WhiteCardsAreShown)
             {
                 await Clients.Group(gameID).SendAsync("ShowWhiteCards", game.PlayedCardsToArray());
-                game.WhiteCardsAreShown = false;
+                game.WhiteCardsAreShown = true;
             }
         }
 
@@ -133,10 +133,9 @@ namespace CardWebSocks.Hubs
             var player = game.FindPlayerById(id);
             if (player == game.CardCzar)
             {
-                var winner = game.SelectCard(card);
+                game.SelectCard(card);
                 await GetNewBlackCard(gameID);
                 await Clients.Group(gameID).SendAsync("ReceivePlayerDetails", game.AllPlayersDetails());
-                await Clients.Group(gameID).SendAsync("RecieveWinner", winner.Name);
             }
         }
 
@@ -145,6 +144,7 @@ namespace CardWebSocks.Hubs
             var isGameOver = game.NewBlackCard();
             if (!isGameOver)
             {
+
                 game.NewCardCzar();
                 await Clients.Group(gameID).SendAsync("RecieveBlackCard", game.CurrentBlackCard.Text, "Pick " + game.CurrentBlackCard.Pick);
                 await Clients.Group(gameID).SendAsync("RefreshHand");

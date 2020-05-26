@@ -47,7 +47,13 @@ connection.on("ReceivePlayerDetails", function (names) {
     document.getElementById("players").innerHTML = "";
     console.log(names);
     for (var i = 0; i < names.length; i++) {
-        document.getElementById("players").innerHTML += "<li id=\"" + names[i].substr(0, names[i].indexOf(' '))+"\">" + names[i] + "</li>";
+        if (names[i].startsWith("‽")) {
+            names[i] = names[i].substr(1);
+            document.getElementById("players").innerHTML += "<li id=\"" + names[i].substr(0, names[i].indexOf(' ')) + "\">" + names[i] + "</li>";
+            document.getElementById(names[i].substr(0, names[i].indexOf(' '))).className = "winner";
+        } else {
+            document.getElementById("players").innerHTML += "<li id=\"" + names[i].substr(0, names[i].indexOf(' ')) + "\">" + names[i] + "</li>";
+        }
     }
 
 });

@@ -13,6 +13,7 @@ namespace CardWebSocks.Cards
         public string ConnectionID { get; set; }
         public string Name { get; set; }
         public bool IsGameStarter { get; set; }
+        public bool LastRoundWinner { get; set; }
         public Player(string ID, string connectionID)
         {
             ConnectionID = connectionID;

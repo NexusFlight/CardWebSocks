@@ -68,7 +68,7 @@ namespace CardWebSocks.Cards
             }
             for (var j = 0; j < PlayerCount; j++)
             {
-                if(CurrentBlackCard.Pick >= 3)
+                if(CurrentBlackCard.Pick >= 3 && players[j].ID != CardCzar.ID)
                 {
                     FillPlayerHand(players[j], CurrentBlackCard.Pick - 1);
                 }
@@ -123,7 +123,6 @@ namespace CardWebSocks.Cards
 
         public string[] PlayedCardsToArray()
         {
-            WhiteCardsAreShown = true;
             var playedArray = new string[(PlayerCount - 1) * CurrentBlackCard.Pick];
 
             var played = 0;
@@ -155,7 +154,10 @@ namespace CardWebSocks.Cards
             if (!players.Contains(FindPlayerByConnectionId(player.ConnectionID)))
             {
                 players.Add(player);
-                player.Name = $"Player{players.Count}";
+                if (player.Name == null)
+                {
+                    player.Name = $"Player{players.Count}";
+                }
             }
             else
             {
@@ -210,7 +212,7 @@ namespace CardWebSocks.Cards
             CardCzar = player;
         }
 
-        internal Player SelectCard(string card)
+        internal void SelectCard(string card)
         {
             var rightsMark = "&#174;";
             var tradeMark = "™";
@@ -225,14 +227,20 @@ namespace CardWebSocks.Cards
             }
             var winner = Players.Single(x => x.PlayedCards.Contains(card));
             winner.Points++;
-            return winner;
+            var lastWiner = players.SingleOrDefault(x => x.LastRoundWinner);
+            if(lastWiner != null)
+            {
+                lastWiner.LastRoundWinner = false;
+            }
+            winner.LastRoundWinner = true;
         }
 
         public string[] AllPlayersDetails()
         {
             return players
-                .Select(player => $"{player.Name} points: {player.Points} {(IsCardCzar(player) ? "Card Czar" : (HasGameStarted ? "Played: " + player.PlayedCards.Count + "/" + CurrentBlackCard.Pick : ""))}")
+                .Select(player => $"{(player.LastRoundWinner ? "‽" : "")}{player.Name} points: {player.Points} {(IsCardCzar(player) ? "Card Czar" : (HasGameStarted ? "Played: " + player.PlayedCards.Count + "/" + CurrentBlackCard.Pick : ""))}")
                 .ToArray();
+            
         }
     }
 }
